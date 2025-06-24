@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <audio id="bgm" src="bgm/iwashiro_minikui_guuzou.mp3" loop autoplay></audio>
+  <title>Wiz風アドベンチャー</title>
+  <link rel="stylesheet" href="style.css">
+   <style>
+    body {
+      font-family: 'DotGothic16', sans-serif;
+      background-color: black;
+      color: white;
+    }
+    #game {
+      padding: 20px;
+      border: 2px solid white;
+      max-width: 600px;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+
+    <h1>森を超えて</h1>
+    <div id="background"></div>
+    <div id="object-image"></div>
+    <div id="step">Step:0</div>
+    <div id="status">
+      HP: <span id="hp">100</span> / 武器: <span id="weapon">None</span><br>
+      攻撃力: <span id="power">10</span>　回避率 <span id="evade">10</span><br>
+      属性  : <span id="attribute">neutral</span>
+      所持品  : <span id="weaponList">なし</span>
+    </div>
+    <div id="eventText"></div>
+    <div id="choices"></div>
+  </div>
+    <script src="charactor.js"></script>
+    <script src="system.js"></script>
+    <script src="event.js"></script>
+    <script src="game.js"></script>
+    </body>
+    <footer><p>BGM: イワシロ音楽素材 <br> https://iwashiro-sounds.work/minikui_guuzou/</p>
+            <p>SE: みんなの創作支援サイトＴスタ <br>https://tnosite.com/famicom-talk-se/</p>
+    </footer>
+</html>
