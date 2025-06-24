@@ -1,8 +1,8 @@
 const weapons = {
-  "Stick":        { power: 5, attribute: "neutral" },
-  "Sword":        { power: 15, attribute: "holy" },
-  "Curse Blade":  { power: 20, attribute: "cursed" },
-  "Legendary Sword": { power: 30, attribute: "holy" }
+  "木の枝": { power: 1, attribute: "neutral" },
+  "棒状のもの": { power: 15, attribute: "holy" },
+  "血塗れの剣": { power: 40, attribute: "evil" },
+  "探していた剣": { power: 30, attribute: "holy" }
 };
 
 let player = {
@@ -12,10 +12,11 @@ let player = {
   power: 10,
   evade: 0.1,
   attribute: "neutral",
+  bag: null,
 };
 
-class Enemy{
-  constructor(name,hp,power,attribute,evade){
+class Enemy {
+  constructor(name, hp, power, attribute, evade) {
     this.name = name;
     this.hp = hp;
     this.power = power;
@@ -23,9 +24,3 @@ class Enemy{
     this.evade = evade;
   }
 }
-
-const enemyPool = [
-  new Enemy("ゴブリン", 25, 5, "neutral",0),
-  new Enemy("ゾンビ", 35, 6, "cursed",0.1),
-  new Enemy("聖騎士", 50, 10, "holy",0.2),
-];

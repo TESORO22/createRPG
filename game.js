@@ -5,7 +5,8 @@ const weaponDisplay = document.getElementById("weapon");
 
 function updateStatus() {
     hpDisplay.innerText = player.hp;
-    weaponDisplay.innerText = player.weapon ? player.weapon.name : "None";
+    //weaponDisplay.innerText = player.weapon ? player.weapon.name : "None";
+    document.getElementById("bag").innerText = player.bag ? player.bag : "なし";;
     document.getElementById("power").innerText = player.power;
     document.getElementById("evade").innerText = `${Math.floor(player.evade * 100)}%`;
     document.getElementById("attribute").innerText = player.attribute;
@@ -14,7 +15,7 @@ function updateStatus() {
     listEL.innerText = " ";
     player.weaponList.forEach(W => {
         const li = document.createElement("li");
-        li.textContent = `${W.name} (Attack +${W.power})`;
+        li.textContent = `${W.name} (攻撃力 +${W.power})`;
         listEL.appendChild(li);
     })
 }
@@ -26,13 +27,13 @@ function showEvent(index) {
             const btn = document.createElement("button");
             btn.innerText = choice.label;
             btn.onclick = function () {
-                playSE("会話8.mp3");
+                //playSE("会話8.mp3");
                 choice.action();
             };
             document.getElementById("choices").appendChild(btn);
         });
     });
-   document.getElementById("choices").innerHTML = "";
+    document.getElementById("choices").innerHTML = "";
 
 }
 
@@ -62,23 +63,75 @@ function playSE(name) {
     se.play();
 }
 
-function typeText(text, callback) {
-    const target = document.getElementById("eventText");
-    target.innerText = "";
-    let i = 0;
+let typingSE = null;
 
-    function showNextChar() {
-        if (i < text.length) {
-            target.innerText += text[i];
-            i++;
-            setTimeout(showNextChar, 40); //表示速度
-        } else {
-            if (callback) callback();
-        }
+function typeText(text, callback) {
+    let i = 0;
+    eventText.innerText = "";
+
+    if (typingSE) {
+        typingSE.pause();
+        typingSE.currentTime = 0;
     }
 
-    showNextChar();
+    typingSE = new Audio("se/会話8.mp3");
+    typingSE.loop = true;
+    typingSE.play();
+
+    if (text.length === 0) {
+        typingSE.pause();
+        typingSE.currentTime = 0;
+        typingSE = null;
+        if (callback) callback();
+        return;
+    }
+
+    const interval = setInterval(() => {
+        eventText.innerText += text[i];
+        i++;
+        if (i >= text.length) {
+            clearInterval(interval);
+
+            if (typingSE) {
+                typingSE.pause();
+                typingSE.currentTime = 0;
+                typingSE = null;
+            }
+
+            if (callback) callback();
+        }
+    }, 50); // 文字速度調整
 }
 
 events.push(makeStartEvent());
 showEvent(0);
+
+function talkToNPC() {
+    fetch("npcDialogue.json")
+        .then(response => response.json())
+        .then(data => {
+            const badEnds = Number(localStorage.getItem("badEnds") || 0);
+            let lines;
+
+            if (badEnds > 4) {
+                lines = data.hints2;
+            } else if (badEnds >= 2) {
+                lines = data.hint1;
+            } else {
+                const lineData = data.default;
+                lines = lineData[Math.floor(Math.random() * lineData.length)];
+            }
+            typeText(lines.join("\n"), () => {
+                document.getElementById("choices").innerHTML = `
+          <button onclick="showNextEvent()">進む</button>
+        `;
+            });
+        })
+        .catch(err => {
+            console.log("NPCデータが読み込みませんでした：", err);
+            typeText("あなたを一瞥して、どこかに去っていった。");
+            document.getElementById("choices").innerHTML = `
+          <button onclick="showNextEvent()">進む</button>
+        `;
+        });
+}
