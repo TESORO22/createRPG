@@ -5,7 +5,6 @@ const weaponDisplay = document.getElementById("weapon");
 
 function updateStatus() {
     hpDisplay.innerText = player.hp;
-    //weaponDisplay.innerText = player.weapon ? player.weapon.name : "None";
     document.getElementById("bag").innerText = player.bag ? player.bag : "なし";;
     document.getElementById("power").innerText = player.power;
     document.getElementById("evade").innerText = `${Math.floor(player.evade * 100)}%`;
@@ -27,6 +26,8 @@ function showEvent(index) {
             const btn = document.createElement("button");
             btn.innerText = choice.label;
             btn.onclick = function () {
+                const allBtns = document.querySelectorAll("#choices button");
+                allBtns.forEach(b => b.disabled = true);
                 //playSE("会話8.mp3");
                 choice.action();
             };
@@ -129,7 +130,7 @@ function talkToNPC() {
         })
         .catch(err => {
             console.log("NPCデータが読み込みませんでした：", err);
-            typeText("あなたを一瞥して、どこかに去っていった。");
+            typeText("旅人はあなたを一瞥して、どこかに去っていった。");
             document.getElementById("choices").innerHTML = `
           <button onclick="showNextEvent()">進む</button>
         `;

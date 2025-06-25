@@ -81,6 +81,12 @@ function battle(enemy) {
 
     if (evadeRoll < player.evade) {
         eventText.innerText = "奇跡！　攻撃を回避し、その隙に一撃を入れた。勝利！";
+        if (enemy.name === "竜") {
+            player.bag = "赤の宝玉";
+            document.getElementById("bag").innerText = player.bag;
+            player.evade += 0.4;
+            document.getElementById("evade").innerText = `${Math.floor(player.evade * 100)}%`;
+        }
         document.getElementById("choices").innerHTML = `
         <button onclick="showNextEvent()">進む</button>
     `;
@@ -153,7 +159,7 @@ function restartGame() {
     player.attribute = "neutral";
     player.weapon = null;
     player.weaponList = [];
-
+    setBackground("image/forest-4996811_640.jpg");
     stepCount = 0;
     updateStatus();
 

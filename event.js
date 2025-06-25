@@ -1,5 +1,9 @@
 const events = [];
 audio.pause();
+let paperFlag = true;
+let neutralFlag = true;
+let flagNum = -1;
+
 function makeStartEvent() {
     return {
         text: "あなたは、森の入り口に立っている・・・",
@@ -84,10 +88,10 @@ function makeCrossroadEvent() {
         ]
     },
     {
-        text: "ふと振り向くと、歩いてきたはずの道はなく、落ち葉があるのみだった",
+        text: "ふと振り向くと、歩いてきたはずの道は落ち葉に覆われていた。",
         choices: [
             {
-                label: "前へ進むしかない",
+                label: "前へ進む",
                 action: function () {
                     //stepForward();
                     showNextEvent();
@@ -201,6 +205,7 @@ function makeCrossroadEvent() {
             {
                 label: "拾いに行く",
                 action: function () {
+                    document.getElementById("choices").innerHTML = "";
                     if (hasAttribute("neutral")) {
                         typeText("『森から抜け出すには、３つの方法がある、運か、実力か、知恵か。』\n ...そう書かれていた。");
                         updateStatus();
@@ -216,7 +221,55 @@ function makeCrossroadEvent() {
             {
                 label: "引き返す",
                 action: function () {
-                    typeText("森は、迷い込んだ者の思想や行動を見ている。\n それは、あの紙も例外ではないだろう...");
+                    document.getElementById("choices").innerHTML = "";
+                    if (paperFlag == true) {
+                        typeText("森は、迷い込んだ者の思想や行動を見ている。\n それは、あの紙も例外ではないだろう...");
+                        paperFlag = false;
+                    } else {
+                        typeText("この森には意思があるのかもしれない。");
+                        stepDown(1);
+                    }
+                    stepForward();
+                    document.getElementById("choices").innerHTML = `
+                            <button onclick="showNextEvent()">進む</button>
+                    `;
+                }
+            }
+        ]
+    },
+        {
+        text: "大きな木の幹に、中立を示す魔術印が描かれている。",
+        choices: [
+            {
+                label: "触れる",
+                action: function () {
+                    document.getElementById("choices").innerHTML = "";
+                    if (hasAttribute("neutral") && neutralFlag == true) {
+                        typeText("印から、強い力を感じる。");
+                        changeHP(50);
+                        player.evade += 0.15;
+                        neutralFlag = false;
+                        updateStatus();
+                    } else if(neutralFlag == false) {
+                        typeText("もう何も起こらない。");
+                    }else {
+                        typeText("触れた途端、強い痛みを感じた。");
+                        player.attribute = "neutral";
+                        changeHP(-50);
+                        updateStatus();
+                    }
+                    stepForward();
+                    document.getElementById("choices").innerHTML = `
+                            <button onclick="showNextEvent()">進む</button>
+                        `;
+                }
+            },
+            {
+                label: "無視する",
+                action: function () {
+                    document.getElementById("choices").innerHTML = "";
+                    typeText("いったい誰が？");
+                    paperFlag = false;
                     stepForward();
                     document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
@@ -226,7 +279,12 @@ function makeCrossroadEvent() {
         ]
     },
     ];
-    const idxRoad = Math.floor(Math.random() * road.length);
+    let idxRoad;
+    do {
+        idxRoad = Math.floor(Math.random() * road.length);
+    } while (road.length > 1 && idxRoad === flagNum); // 前回と同じは回避
+
+    flagNum = idxRoad;
     return road[idxRoad];
 }
 
@@ -238,9 +296,18 @@ function makeRightEvent() {
             {
                 label: "光を浴びる",
                 action: function () {
-                    stepDown(2);
-                    changeHP(+10);
-                    showNextEvent();
+                    if (player.attribute === "holy" || player.attribute === "neutral") {
+                        stepDown(2);
+                        changeHP(+10);
+                        showNextEvent();
+                    } else {
+                        document.getElementById("choices").innerHTML = "";
+                        typeText("思考が浄化されていく・・・");
+                        player.attribute = "neutral";
+                        document.getElementById("choices").innerHTML = `
+                            <button onclick="showNextEvent()">進む</button>
+                    `;
+                    }
                 }
             },
             {
@@ -289,7 +356,7 @@ function makeRightEvent() {
                 label: "食べずに引き返す",
                 action: function () {
                     stepDown(1);
-                    stepForward();
+                    //stepForward();
                     showNextEvent();
                 }
             }
@@ -305,7 +372,7 @@ function makeRightEvent() {
                     playSE("hirameki.mp3");
                     listenForSecretInput();
                     document.getElementById("choices").innerHTML = `
-                            <button onclick="showNextEvent()">進む</button>
+                            <button onclick="showNextEvent()">進む？</button>
                     `;
                 }
             },
@@ -324,9 +391,10 @@ function makeRightEvent() {
             {
                 label: "祈る",
                 action: function () {
+                    document.getElementById("choices").innerHTML = "";
                     if (hasAttribute("holy")) {
                         typeText("身体がかなり身軽になるのを感じた。");
-                        player.evade += 0.5;
+                        player.evade += 0.3;
                         updateStatus();
                     } else {
                         typeText("信仰が足りないようだ。");
@@ -340,7 +408,8 @@ function makeRightEvent() {
             {
                 label: "立ち去る",
                 action: function () {
-                    typeText("背中に聖なる気配を感じた気がした。");
+                    document.getElementById("choices").innerHTML = "";
+                    typeText("思想と結果は一致する。");
                     stepForward();
                     document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
@@ -363,6 +432,7 @@ function makeRightEvent() {
             {
                 label: "無視して進む",
                 action: function () {
+                    document.getElementById("choices").innerHTML = "";
                     typeText("この森に、なぜ生きている人間が？");
                     stepForward();
                     document.getElementById("choices").innerHTML = `
@@ -408,6 +478,7 @@ function makeLeftEvent() {
             {
                 label: "直す",
                 action: function () {
+                    playSE("computer_down.mp3");
                     player.attribute = "evil";
                     stepDown(3);
                     updateStatus();
@@ -429,13 +500,25 @@ function makeLeftEvent() {
             {
                 label: "先に進む",
                 action: function () {
-                    typeText("疲労感に襲われた。", function () {
-                        document.getElementById("choices").innerHTML = `
+                    document.getElementById("choices").innerHTML = "";
+                    if (player.attribute === "evil") {
+                        typeText("呼びかけに答えると、羽の生えた怪物が現れ、力を分け与えた。", function () {
+                            changeHP(50);
+                            player.power += 15;
+                            updateStatus();
+                            document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
                             `;
-                    });
-                    const died = changeHP(-30);
-                    if (died) return;
+                        });
+                    } else {
+                        typeText("得体のしれないものが自分を呼んでいる恐怖で、体が震えた。", function () {
+                            document.getElementById("choices").innerHTML = `
+                            <button onclick="showNextEvent()">進む</button>
+                            `;
+                        });
+                        const died = changeHP(-30);
+                        if (died) return;
+                    }
                     stepDown(-1);
                     updateStatus();
                     stepForward();
@@ -505,6 +588,7 @@ function makeLeftEvent() {
             {
                 label: "手に取る",
                 action: function () {
+                    document.getElementById("choices").innerHTML = "";
                     if (hasAttribute("evil")) {
                         typeText("拾うと、あなたの体に変化が生じた。筋肉が隆起する。");
                         player.power += 10;
@@ -525,6 +609,7 @@ function makeLeftEvent() {
             {
                 label: "立ち去る",
                 action: function () {
+                    document.getElementById("choices").innerHTML = "";
                     typeText("やめておいたほうがいい。");
                     stepForward();
                     document.getElementById("choices").innerHTML = `
@@ -557,12 +642,17 @@ function getRandomEvent() {
                 {
                     label: "逃げる",
                     action: function () {
-                        typeText("なんとか逃げ出した。");
                         const died = changeHP(-Spir.power);
-                        document.getElementById("choices").innerHTML = `
+
+                        if (died) {
+                            return;
+                        } else {
+                            document.getElementById("choices").innerHTML = "";
+                            typeText("なんとか逃げ出した。");
+                            document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
                         `;
-                        if (died) return;
+                        }
                         stepForward();
                         //showNextEvent();
                     }
@@ -595,6 +685,7 @@ function getRandomEvent() {
                 {
                     label: "無視",
                     action: function () {
+                        document.getElementById("choices").innerHTML = "";
                         typeText("なぜ森の中に人間が？");
                         document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
@@ -610,6 +701,7 @@ function getRandomEvent() {
             choices: [
                 {
                     label: "買う", action: function () {
+                        document.getElementById("choices").innerHTML = "";
                         typeText("渡されたものは毒薬だった。");
                         const died = changeHP(-30);
                         if (died) return;
@@ -697,6 +789,7 @@ function getRandomEvent() {
                 {
                     label: "逃げる",
                     action: function () {
+                        audio.pause();
                         eventText.innerText = "あなたは逃げ出したが、小人は道を消していた。\n そのまま道がわからなくなってしまった・・・";
                         document.getElementById("choices").innerHTML = `<button onclick="restartGame()">最初から</button>`;
                     }
@@ -725,6 +818,7 @@ function getRandomEvent() {
                     label: "無視して進む",
                     action: function () {
                         playSE("play.mp3");
+                        document.getElementById("choices").innerHTML = "";
                         typeText("あなたは、罠を警戒した。", function () {
                             document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
@@ -912,13 +1006,19 @@ function makeEndingEvent() {
     } else if (player.bag === "赤の宝玉") {
         playSE("hakushu.mp3");
         return {
-            text: "傷ついた竜が目の前に現れた。\n かつて戦った竜は、あなたの力を認め、あなたを街に送り返してくれるようだ。",
+            text: "傷ついた竜が目の前に現れた。\n かつて戦った竜は、あなたの力を認め、あなたを街まで乗せてくれるようだ。",
             choices: [{ label: "竜の背に乗る", action: restartGame }]
+        };
+    } else if (player.attribute === "evil" && player.power > 30) {
+        playSE("computer_down.mp3");
+        return {
+            text: "あなたはその悪意と強大な力で森を支配した。",
+            choices: [{ label: "初めから", action: restartGame }]
         };
     } else {
         return {
             text: "あなたはそのまま森の中をさまよい続け、\n ついに森から出ることは出来なかった・・・",
-            choices: [{ label: "夢から醒める", action: restartGame, countBadEnd, }]
+            choices: [{ label: "やり直す", action: restartGame, countBadEnd, }]
         };
     }
 }
@@ -926,6 +1026,7 @@ function makeEndingEvent() {
 function triggerEscapeEnding() {
     eventText.innerText = "君は天からの指示を読み解き、森を越え、街にたどり着いた・・・";
     audio.pause();
+    setBackground("image/Amsterdam-at-night-high_rgb_5725-990x656.jpg");
     playSE("hakushu.mp3");
     document.getElementById("choices").innerHTML =
         `<button onclick="restartGame()">クリア</button>`;
