@@ -863,6 +863,7 @@ function getRandomEvent() {
                     label: "無視して進む",
                     action: function () {
                         playSE("play.mp3");
+                        document.getElementById("choices").innerHTML = "";
                         typeText("あなたは、罠を警戒した。", function () {
                             document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
@@ -1007,7 +1008,7 @@ function getRandomEvent() {
 }
 
 function makeEndingEvent() {
-    if (player.weaponList.some(w => w.name === "探していた剣")) {
+    if (player.weaponList.some(w => w.name === "探していた剣") && player.attribute !== "evil") {
         playSE("hakushu.mp3");
         return {
             text: "気が付けば、森の入り口にたどり着いていた。\n 帰ろう。",

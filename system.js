@@ -157,7 +157,7 @@ function restartGame() {
     player.power = 10;
     player.evade = 0.1;
     player.attribute = "neutral";
-    player.weapon = null;
+    player.bag = null;
     player.weaponList = [];
     setBackground("image/forest-4996811_640.jpg");
     stepCount = 0;
