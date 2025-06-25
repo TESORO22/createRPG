@@ -3,6 +3,7 @@ audio.pause();
 let paperFlag = true;
 let neutralFlag = true;
 let flagNum = -1;
+let npcFlag = true;
 
 function makeStartEvent() {
     return {
@@ -277,13 +278,8 @@ function makeCrossroadEvent() {
             {
                 label: "無視する",
                 action: function () {
-                    document.getElementById("choices").innerHTML = "";
-                    typeText("いったい誰が？");
-                    paperFlag = false;
                     stepForward();
-                    document.getElementById("choices").innerHTML = `
-                            <button onclick="showNextEvent()">進む</button>
-                    `;
+                    showNextEvent();
                 }
             }
         ]
@@ -314,6 +310,7 @@ function makeRightEvent() {
                         document.getElementById("choices").innerHTML = "";
                         typeText("思考が浄化されていく・・・");
                         player.attribute = "neutral";
+                        updateStatus();
                         document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
                     `;
@@ -330,7 +327,7 @@ function makeRightEvent() {
         ]
     },
     {
-        text: "突如現れた神々しい石碑に刻まれた女神は、あなたを見ている・・・",
+        text: "小さな女神像を見つけた。それはあなたを見ている・・・",
         choices: [
             {
                 label: "祈る",
@@ -344,6 +341,10 @@ function makeRightEvent() {
             {
                 label: "無視する",
                 action: function () {
+                    if(player.attribute === "holy"){
+                        player.attribute = "neutral";
+                        updateStatus();
+                    }
                     stepForward();
                     showNextEvent();
                 }
@@ -419,9 +420,9 @@ function makeRightEvent() {
                 label: "立ち去る",
                 action: function () {
                     document.getElementById("choices").innerHTML = "";
-                    typeText("思想と結果は一致する。");
-                    stepForward();
-                    document.getElementById("choices").innerHTML = `
+                    typeText("思想と結果は一致する。")
+                        stepForward();
+                        document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
                     `;
                 }
@@ -434,7 +435,6 @@ function makeRightEvent() {
             {
                 label: "近づく",
                 action: function () {
-                    //typeText("旅人は語りかけてきた。");
                     document.getElementById("choices").innerHTML = "";
                     talkToNPC();
                 }
@@ -443,12 +443,11 @@ function makeRightEvent() {
                 label: "無視して進む",
                 action: function () {
                     document.getElementById("choices").innerHTML = "";
-                    typeText("この森に、なぜ生きている人間が？");
-                    stepForward();
-                    document.getElementById("choices").innerHTML = `
+                    typeText("この森に、なぜ生きている人間が？")
+                        stepForward();
+                        document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
                         `;
-                    //showNextEvent();
                 }
             }
         ]
@@ -460,7 +459,7 @@ function makeRightEvent() {
 
 function makeLeftEvent() {
     const poolL = [{
-        text: "赤い川が現れた。向こう岸に、光るものが見える。",
+        text: "赤い川だ。向こう岸に、光るものが見える。",
         choices: [
             {
                 label: "渡る",
@@ -600,15 +599,16 @@ function makeLeftEvent() {
                 action: function () {
                     document.getElementById("choices").innerHTML = "";
                     if (hasAttribute("evil")) {
-                        typeText("拾うと、あなたの体に変化が生じた。筋肉が隆起する。");
+                        typeText("あなたの体に変化が生じた。筋肉が隆起する。");
                         player.power += 10;
                         player.evade = 0.01;
                         updateStatus();
                     } else {
                         const died = changeHP(-50);
                         if (died) return;
-                        typeText("思考が黒く染まっていく・・・");
                         player.attribute = "evil";
+                        updateStatus();
+                        typeText("思考が黒く染まっていく・・・");
                     }
                     stepForward();
                     document.getElementById("choices").innerHTML = `
@@ -620,11 +620,11 @@ function makeLeftEvent() {
                 label: "立ち去る",
                 action: function () {
                     document.getElementById("choices").innerHTML = "";
-                    typeText("やめておいたほうがいい。");
                     stepForward();
-                    document.getElementById("choices").innerHTML = `
+                    typeText("やめておこう。");
+                        document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
-                    `;
+                        `;
                 }
             }
         ]
@@ -637,11 +637,11 @@ function makeLeftEvent() {
 function getRandomEvent() {
     const skeleton = new Enemy("スケルトン", 15, 60, "evil");
     const gob = new Enemy("ゴブリン", 10, 45, "evil", 0.1);
-    const Spir = new Enemy("精霊", 30, 100, "holy", 0.2);
+    const Spir = new Enemy("精霊", 30, 90, "holy", 0.2);
     const dra = new Enemy("竜", 50, 1000, "neutral", 0.5);
     const pool = [
         {
-            text: "精霊が、あなたを排除するために現れた。",
+            text: "精霊が、敵意を剝き出しにして現れた。",
             choices: [
                 {
                     label: "戦う",
@@ -696,12 +696,12 @@ function getRandomEvent() {
                     label: "無視",
                     action: function () {
                         document.getElementById("choices").innerHTML = "";
-                        typeText("なぜ森の中に人間が？");
-                        document.getElementById("choices").innerHTML = `
+                        typeText("本物なのだろうか？"),function(){
+                            document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
-                        `;
-                        stepForward();
-                        //showNextEvent();
+                            `;
+                         stepForward();
+                        };
                     }
                 }
             ]
@@ -714,12 +714,13 @@ function getRandomEvent() {
                         document.getElementById("choices").innerHTML = "";
                         const died = changeHP(-30);
                         if (died) return;
-                        typeText("渡されたものは毒薬だった。");
-                        stepForward();
-                        document.getElementById("choices").innerHTML = `
+                        typeText("渡されたものは毒薬だった。"),function(){
+                            stepForward();
+                            document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
-                        `;
-                        //showNextEvent();
+                            `;
+                        };
+
                     }
                 },
                 {
@@ -731,12 +732,12 @@ function getRandomEvent() {
             ]
         },
         {
-            text: "何もない。前に進もう。",
+            text: "木の枝しかない。前に進もう。",
             choices: [{
                 label: "進む",
                 action: function () {
                     //changeHP(-10);
-                    addWeapon("Stick");
+                    addWeapon("木の枝");
                     stepForward();
                     showNextEvent();
 
@@ -765,17 +766,32 @@ function getRandomEvent() {
                     label: "助ける",
                     action: function () {
                         document.getElementById("choices").innerHTML = "";
-                        const died = changeHP(-30);
-                        if (died) return;
-                        typeText("旅人は敵と勘違いして切りかかってきた。", function () {
+                        if(player.attribute === "evil"){
+                            const died = changeHP(-30);
+                            if (died) return;
+                            typeText("旅人は敵と勘違いして切りかかってきた。", function () {
+                            playSE("play.mp3");
                             document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
                             `;
-                        });
-                        playSE("play.mp3");
-                        //stepForward();
+                            });
+                        }else if(npcFlag == true){
+                            typeText("旅人はお礼と、次のように言った。\n 『思想と力が伴えば、人は悪魔になれる』", function () {
+                                npcFlag = false;
+                                document.getElementById("choices").innerHTML = `
+                                <button onclick="showNextEvent()">進む</button>
+                                `;
+                            })
+                        }else{
+                            typeText("『いつもありがとう。探し物は見つかったかい？』", function () {
+                            changeHP(10);
+                            updateStatus();
+                            document.getElementById("choices").innerHTML = `
+                            <button onclick="showNextEvent()">進む</button>
+                            `;
+                        })
                     }
-                },
+                }},
                 {
                     label: "無視して通り過ぎる",
                     action: function () {
@@ -1009,13 +1025,14 @@ function getRandomEvent() {
 
 function makeEndingEvent() {
     if (player.weaponList.some(w => w.name === "探していた剣") && player.attribute !== "evil") {
-        playSE("hakushu.mp3");
+        //playSE("hakushu.mp3");
         return {
             text: "気が付けば、森の入り口にたどり着いていた。\n 帰ろう。",
             choices: [{ label: "立ち去る", action: restartGame }]
         };
     } else if (player.bag === "赤の宝玉") {
         playSE("hakushu.mp3");
+        setBackground("image/Amsterdam-at-night-high_rgb_5725-990x656.jpg");
         return {
             text: "傷ついた竜が目の前に現れた。\n かつて戦った竜は、あなたの力を認め、あなたを街まで乗せてくれるようだ。",
             choices: [{ label: "竜の背に乗る", action: restartGame }]
