@@ -207,15 +207,19 @@ function makeCrossroadEvent() {
                 action: function () {
                     document.getElementById("choices").innerHTML = "";
                     if (hasAttribute("neutral")) {
-                        typeText("『森から抜け出すには、３つの方法がある、運か、実力か、知恵か。』\n ...そう書かれていた。");
+                        typeText("『森から抜け出すには、３つの方法がある、運か、実力か、知恵か。』\n ...そう書かれていた。", function () {
                         updateStatus();
+                        document.getElementById("choices").innerHTML = `
+                        <button onclick="showNextEvent()">進む</button>
+                    `;
+                        });
                     } else {
                         typeText("紙は、風に舞いどこかに消えてしまった。");
+                        document.getElementById("choices").innerHTML = `
+                            <button onclick="showNextEvent()">進む</button>
+                    `;
                     }
                     stepForward();
-                    document.getElementById("choices").innerHTML = `
-                            <button onclick="showNextEvent()">進む</button>
-                        `;
                 }
             },
             {
@@ -223,16 +227,21 @@ function makeCrossroadEvent() {
                 action: function () {
                     document.getElementById("choices").innerHTML = "";
                     if (paperFlag == true) {
-                        typeText("森は、迷い込んだ者の思想や行動を見ている。\n それは、あの紙も例外ではないだろう...");
+                        typeText("森は、迷い込んだ者の思想や行動を見ている。\n それは、あの紙も例外ではないだろう...", function () {
                         paperFlag = false;
+                        document.getElementById("choices").innerHTML = `
+                        <button onclick="showNextEvent()">進む</button>
+                    `;
+                        });
                     } else {
-                        typeText("この森には意思があるのかもしれない。");
-                        stepDown(1);
-                    }
-                    stepForward();
-                    document.getElementById("choices").innerHTML = `
+                        typeText("この森には意思があるのかもしれない。",function(){
+                            stepDown(1);
+                            document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
                     `;
+                        });
+                    }
+                    stepForward();
                 }
             }
         ]
@@ -253,9 +262,10 @@ function makeCrossroadEvent() {
                     } else if(neutralFlag == false) {
                         typeText("もう何も起こらない。");
                     }else {
+                        const died = changeHP(-50);
+                        if (died) return;
                         typeText("触れた途端、強い痛みを感じた。");
                         player.attribute = "neutral";
-                        changeHP(-50);
                         updateStatus();
                     }
                     stepForward();
@@ -511,17 +521,17 @@ function makeLeftEvent() {
                             `;
                         });
                     } else {
+                        const died = changeHP(-30);
+                        if (died) return;
                         typeText("得体のしれないものが自分を呼んでいる恐怖で、体が震えた。", function () {
                             document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
                             `;
                         });
-                        const died = changeHP(-30);
-                        if (died) return;
                     }
                     stepDown(-1);
                     updateStatus();
-                    stepForward();
+                    //stepForward();
                     //showNextEvent();
                 }
             }
@@ -543,14 +553,14 @@ function makeLeftEvent() {
                 label: "引き返す",
                 action: function () {
                     document.getElementById("choices").innerHTML = "";
+                    const died = changeHP(-20);
+                    if (died) return;
                     typeText("悪い思考は体を蝕む。気分が悪い。", function () {
                         document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
                             `;
                     });
                     playSE("play.mp3");
-                    const died = changeHP(-20);
-                    if (died) return;
                     updateStatus();
                     //stepForward();
                 }
@@ -595,10 +605,10 @@ function makeLeftEvent() {
                         player.evade = 0.01;
                         updateStatus();
                     } else {
-                        typeText("思考が黒く染まっていく・・・");
-                        player.attribute = "evil";
                         const died = changeHP(-50);
                         if (died) return;
+                        typeText("思考が黒く染まっていく・・・");
+                        player.attribute = "evil";
                     }
                     stepForward();
                     document.getElementById("choices").innerHTML = `
@@ -702,9 +712,9 @@ function getRandomEvent() {
                 {
                     label: "買う", action: function () {
                         document.getElementById("choices").innerHTML = "";
-                        typeText("渡されたものは毒薬だった。");
                         const died = changeHP(-30);
                         if (died) return;
+                        typeText("渡されたものは毒薬だった。");
                         stepForward();
                         document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
@@ -755,14 +765,14 @@ function getRandomEvent() {
                     label: "助ける",
                     action: function () {
                         document.getElementById("choices").innerHTML = "";
+                        const died = changeHP(-30);
+                        if (died) return;
                         typeText("旅人は敵と勘違いして切りかかってきた。", function () {
                             document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
                             `;
                         });
                         playSE("play.mp3");
-                        const died = changeHP(-30);
-                        if (died) return;
                         //stepForward();
                     }
                 },
@@ -838,13 +848,13 @@ function getRandomEvent() {
                     action: function () {
                         playSE("shu.mp3");
                         document.getElementById("choices").innerHTML = "";
+                        const died = changeHP(-50);
+                        if (died) return;
                         typeText("箱を開けると、矢があなたに向かって飛んできた。", function () {
                             document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
                             `;
                         });
-                        const died = changeHP(-50);
-                        if (died) return;
                         //stepForward();
                         //showNextEvent();
                     }
@@ -876,9 +886,9 @@ function getRandomEvent() {
                 {
                     label: "逃げる",
                     action: function () {
-                        eventText.innerText = "あなたは逃げた。逃げることも、時には必要だ。";
                         const died = changeHP(-skeleton.power);
                         if (died) return;
+                        eventText.innerText = "あなたは逃げた。逃げることも、時には必要だ。";
                         document.getElementById("choices").innerHTML = `
                             <button onclick="showNextEvent()">進む</button>
                         `;
