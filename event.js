@@ -695,13 +695,8 @@ function getRandomEvent() {
                 {
                     label: "無視",
                     action: function () {
-                        document.getElementById("choices").innerHTML = "";
-                        typeText("本物なのだろうか？"),function(){
-                            document.getElementById("choices").innerHTML = `
-                            <button onclick="showNextEvent()">進む</button>
-                            `;
-                         stepForward();
-                        };
+                        stepForward();
+                        showNextEvent();
                     }
                 }
             ]
@@ -714,12 +709,12 @@ function getRandomEvent() {
                         document.getElementById("choices").innerHTML = "";
                         const died = changeHP(-30);
                         if (died) return;
-                        typeText("渡されたものは毒薬だった。"),function(){
-                            stepForward();
+                        typeText("毒薬だ！", function () {
                             document.getElementById("choices").innerHTML = `
-                            <button onclick="showNextEvent()">進む</button>
+                                <button onclick="showNextEvent()">進む</button>
                             `;
-                        };
+                        });
+                        stepForward();
 
                     }
                 },

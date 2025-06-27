@@ -117,8 +117,7 @@ function battle(enemy) {
     } else {
         const messagesLose = [
             "致命的な一撃を受けて倒れた。",
-            "あなたは敵に負けた…",
-            "ゲームオーバー。"
+            "あなたは森の中で息絶えた。",
         ];
         //changeHP(-1000);
         player.hp -= 1000;
